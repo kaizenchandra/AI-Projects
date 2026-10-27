@@ -1,0 +1,72 @@
+name: loan-risk
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python }}'
+      - run: python -m pip install --require-hashes -r requirements-dev.lock
+      - run: python -m pip install --no-deps -e .
+      - run: ruff check src tests scripts && ruff format --check src tests scripts && mypy src/loan_risk
+      - run: pytest -q
+      - run: pip-audit --strict -r requirements.lock
+  container:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # Artifacts enforce Python minor compatibility with the runtime image.
+          python-version: '3.11'
+      - run: python -m pip install --require-hashes -r requirements.lock
+      - run: python -m pip install --no-deps -e .
+      - name: Generate a synthetic container test model
+        run: |
+          loan-risk generate --rows 6000 --output data/ci-synthetic.csv
+          loan-risk train --data data/ci-synthetic.csv --config configs/training.json --output artifacts/ci
+      - run: docker build -t loan-risk:ci .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: loan-risk:ci
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+      - name: Check inference in the restricted non-root container
+        shell: bash
+        run: |
+          export LOAN_RISK_API_KEY="$(openssl rand -hex 32)"
+          echo "::add-mask::$LOAN_RISK_API_KEY"
+          # Trust only this job's locally generated synthetic test package.
+          export LOAN_RISK_TRUSTED_MANIFEST_SHA256="$(cat artifacts/ci/candidate/manifest.sha256)"
+          container_id=$(docker run --detach --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --memory 1g --cpus 2 --pids-limit 128 \
+            --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            --publish 127.0.0.1:18000:8000 \
+            --mount "type=bind,src=$PWD/artifacts/ci/candidate,dst=/models,readonly" \
+            -e LOAN_RISK_MODEL_DIR=/models -e LOAN_RISK_ALLOW_CANDIDATE=true \
+            -e LOAN_RISK_API_KEY -e LOAN_RISK_TRUSTED_MANIFEST_SHA256 loan-risk:ci)
+          trap 'docker rm --force "$container_id" >/dev/null' EXIT
+          ready=false
+          for attempt in {1..30}; do
+            if curl --fail --silent --max-time 2 http://127.0.0.1:18000/health/ready; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          test "$ready" = true
+          curl --fail --silent --max-time 10 http://127.0.0.1:18000/api/v1/risk/predict \
+            -H "Authorization: Bearer $LOAN_RISK_API_KEY" -H 'Content-Type: application/json' \
+            --data-binary @configs/request.json --output response.json
+          python -c 'import json; r=json.load(open("response.json")); assert 0 <= r["default_probability"] <= 1; assert r["decision_support_only"] is True'

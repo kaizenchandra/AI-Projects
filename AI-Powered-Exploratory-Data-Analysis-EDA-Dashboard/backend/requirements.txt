@@ -1,0 +1,12 @@
+fastapi==0.162.0
+starlette==1.10.0
+anyio==4.15.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+polars==2.0.0
+numpy==2.5.4
+scipy==1.18.1
+openpyxl==3.1.5
+httpx==0.28.1
+pytest==9.1.1
+ruff==0.17.2

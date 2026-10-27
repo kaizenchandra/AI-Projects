@@ -1,0 +1,11 @@
+{
+  "reviewer": "",
+  "ticket": "",
+  "approved_at": "",
+  "candidate_manifest_sha256": "",
+  "independent_validation": false,
+  "security_review": false,
+  "fairness_review": false,
+  "legal_review": false,
+  "evaluation_accepted": false
+}

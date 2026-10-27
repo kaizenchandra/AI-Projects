@@ -1,0 +1,20 @@
+{
+  "seed": 42,
+  "model_version": "1.0.0-synthetic",
+  "dataset_id": "synthetic-v1-6000-seed42",
+  "synthetic": true,
+  "train_end": "2016-12-31",
+  "validation_start": "2018-01-01",
+  "validation_end": "2019-12-31",
+  "test_start": "2021-01-01",
+  "folds": 3,
+  "search_iterations": 4,
+  "trees": 100,
+  "bootstrap_iterations": 100,
+  "false_negative_cost": 10000,
+  "false_positive_cost": 200,
+  "manual_review_cost": 50,
+  "review_capacity": 0.25,
+  "low_risk_cutoff": 0.10,
+  "high_risk_cutoff": 0.25
+}

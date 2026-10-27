@@ -1,0 +1,12 @@
+services:
+  spam-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      SPAM_MODEL_PATH: /app/artifacts/model.joblib
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true

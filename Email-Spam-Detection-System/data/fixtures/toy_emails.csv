@@ -1,0 +1,13 @@
+text,label
+"Congratulations you won a free prize claim now",spam
+"Free cash prize click this urgent offer",spam
+"You have won a lottery reward claim prize",spam
+"Limited time free voucher click now",spam
+"Urgent winner claim your cash bonus",spam
+"Cheap medicines and free offer today",spam
+"Meeting agenda and notes for tomorrow",ham
+"Please review the project report before our meeting",ham
+"Lunch is scheduled with the team tomorrow",ham
+"The invoice and contract are attached for review",ham
+"Can we discuss the release plan in our meeting",ham
+"Your appointment is confirmed for next week",ham

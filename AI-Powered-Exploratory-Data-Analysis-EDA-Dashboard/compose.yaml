@@ -1,0 +1,34 @@
+services:
+  dashboard:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      EDA_API_TOKENS: ${EDA_API_TOKENS:?Set a random token of at least 24 characters in .env}
+      EDA_STORAGE: /app/data
+      EDA_JOB_TIMEOUT: 120
+      EDA_RETENTION_DAYS: 30
+      EDA_MAX_ROWS: 100000
+      EDA_MAX_COLUMNS: 100
+      EDA_MAX_BYTES: 20971520
+      EDA_EXTERNAL_AI: "false"
+    volumes:
+      - eda-data:/app/data
+    mem_limit: 2g
+    cpus: 2
+    pids_limit: 128
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/ready', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  eda-data:

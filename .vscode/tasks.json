@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Prism: local dashboard",
+			"type": "shell",
+			"command": "EDA_DEV_MODE=true EDA_STORAGE=AI-Powered-Exploratory-Data-Analysis-EDA-Dashboard/data AI-Powered-Exploratory-Data-Analysis-EDA-Dashboard/.venv/bin/python -m uvicorn eda.api:app --app-dir AI-Powered-Exploratory-Data-Analysis-EDA-Dashboard/backend --host 127.0.0.1 --port 8000 --no-access-log",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+frontend/node_modules
+frontend/dist
+reports/*.png
+artifacts/*.joblib
+artifacts/*.json

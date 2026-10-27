@@ -1,0 +1,12 @@
+.venv/
+*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+frontend/dist/
+.env
+datasets/raw/*.csv
+artifacts/*.joblib
+artifacts/*.json
+reports/*.png

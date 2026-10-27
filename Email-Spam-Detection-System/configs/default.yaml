@@ -1,0 +1,20 @@
+model:
+  algorithm: multinomial_naive_bayes
+  alpha: 1.0
+  fit_prior: true
+vectorizer:
+  ngram_range: [1, 2]
+  min_df: 1
+  max_df: 1.0
+  max_features: 50000
+  binary: false
+training:
+  random_seed: 42
+  test_size: 0.2
+  validation_size: 0.2
+classification:
+  decision_threshold: 0.5
+  false_positive_rate_budget: 0.05
+limits:
+  max_message_chars: 200000
+  max_tokens: 10000

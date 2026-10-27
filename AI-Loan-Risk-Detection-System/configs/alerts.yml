@@ -1,0 +1,18 @@
+groups:
+  - name: loan-risk
+    rules:
+      - alert: LoanRiskUnavailable
+        expr: loan_risk_model_available == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: 'Model is unavailable; investigate startup and artifact trust'}
+      - alert: LoanRiskErrorRate
+        expr: sum(rate(loan_risk_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(loan_risk_requests_total[5m])), 0.01) > 0.01
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'Request errors exceed 1 percent'}
+      - alert: LoanRiskLatency
+        expr: histogram_quantile(0.95, sum by (le) (rate(loan_risk_request_seconds_bucket[5m]))) > 1
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: 'p95 latency exceeds provisional one-second budget'}
